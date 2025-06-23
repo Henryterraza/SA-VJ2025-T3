@@ -1,0 +1,377 @@
+openapi: 3.0.3
+info:
+  title: CMDB API
+  version: 1.0.0
+  description: API para manejo de Configuration Items (CIs) con relaciones y auditoría
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /cis:
+    get:
+      summary: Listar CIs con filtros opcionales
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Buscar por nombre (parcial)
+        - in: query
+          name: ci_type_id
+          schema:
+            type: integer
+          description: Filtrar por tipo de CI
+        - in: query
+          name: environment_id
+          schema:
+            type: integer
+          description: Filtrar por ambiente
+        - in: query
+          name: current_state
+          schema:
+            type: string
+          description: Filtrar por estado actual
+        - in: query
+          name: security_level_id
+          schema:
+            type: integer
+          description: Filtrar por nivel de seguridad
+      responses:
+        '200':
+          description: Lista de CIs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigurationItem'
+
+    post:
+      summary: Crear un nuevo CI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigurationItemInput'
+      responses:
+        '201':
+          description: CI creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationItem'
+
+  /cis/{id}:
+    get:
+      summary: Obtener CI por ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID del CI
+      responses:
+        '200':
+          description: CI encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationItem'
+        '404':
+          description: CI no encontrado
+
+    put:
+      summary: Actualizar CI por ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID del CI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigurationItemUpdate'
+      responses:
+        '200':
+          description: CI actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationItem'
+        '404':
+          description: CI no encontrado
+
+    delete:
+      summary: Eliminar CI por ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID del CI
+      responses:
+        '200':
+          description: CI eliminado
+        '404':
+          description: CI no encontrado
+
+  /cis/{id}/children:
+    get:
+      summary: Obtener CIs hijos relacionados (children)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID del CI padre
+      responses:
+        '200':
+          description: Lista de CIs hijos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CIRelationship'
+    post:
+      summary: Agregar relación hijo a un CI padre
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID del CI padre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - child_ci_id
+              properties:
+                child_ci_id:
+                  type: integer
+      responses:
+        '201':
+          description: Relación creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CIRelationship'
+
+  /cis/{id}/parents:
+    get:
+      summary: Obtener CIs padres relacionados (parents)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID del CI hijo
+      responses:
+        '200':
+          description: Lista de CIs padres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CIRelationship'
+
+  /cis/{id}/audit-log:
+    get:
+      summary: Obtener registros de auditoría de un CI
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID del CI
+      responses:
+        '200':
+          description: Lista de auditoría
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CIAuditLog'
+
+components:
+  schemas:
+    ConfigurationItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        ci_type_id:
+          type: integer
+        serial_number:
+          type: string
+        version:
+          type: string
+        acquisition_date:
+          type: string
+          format: date
+        current_state:
+          type: string
+        physical_location:
+          type: string
+        owner:
+          type: string
+        change_date:
+          type: string
+          format: date
+        change_description:
+          type: string
+        related_docs:
+          type: string
+        incident_links:
+          type: string
+        security_level_id:
+          type: integer
+        compliance_level_id:
+          type: integer
+        config_state:
+          type: string
+        license_number:
+          type: string
+        expiration_date:
+          type: string
+          format: date
+        environment_id:
+          type: integer
+
+    ConfigurationItemInput:
+      type: object
+      required:
+        - name
+        - ci_type_id
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        ci_type_id:
+          type: integer
+        serial_number:
+          type: string
+        version:
+          type: string
+        acquisition_date:
+          type: string
+          format: date
+        current_state:
+          type: string
+        physical_location:
+          type: string
+        owner:
+          type: string
+        change_date:
+          type: string
+          format: date
+        change_description:
+          type: string
+        related_docs:
+          type: string
+        incident_links:
+          type: string
+        security_level_id:
+          type: integer
+        compliance_level_id:
+          type: integer
+        config_state:
+          type: string
+        license_number:
+          type: string
+        expiration_date:
+          type: string
+          format: date
+        environment_id:
+          type: integer
+
+    ConfigurationItemUpdate:
+      type: object
+      properties:
+        description:
+          type: string
+        serial_number:
+          type: string
+        version:
+          type: string
+        acquisition_date:
+          type: string
+          format: date
+        current_state:
+          type: string
+        physical_location:
+          type: string
+        owner:
+          type: string
+        change_date:
+          type: string
+          format: date
+        change_description:
+          type: string
+        related_docs:
+          type: string
+        incident_links:
+          type: string
+        security_level_id:
+          type: integer
+        compliance_level_id:
+          type: integer
+        config_state:
+          type: string
+        license_number:
+          type: string
+        expiration_date:
+          type: string
+          format: date
+        environment_id:
+          type: integer
+
+    CIRelationship:
+      type: object
+      properties:
+        id:
+          type: integer
+        parent_ci_id:
+          type: integer
+        child_ci_id:
+          type: integer
+
+    CIAuditLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        ci_id:
+          type: integer
+        action:
+          type: string
+          enum: [CREATE, UPDATE, DELETE]
+        performed_by:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        change_summary:
+          type: string

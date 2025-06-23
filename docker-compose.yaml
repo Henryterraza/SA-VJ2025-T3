@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:latest
+    container_name: db_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: SA_Tarea3
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret123*
+    ports:
+      - "5432:5432"
+    volumes:
+      # - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-data:/var/lib/postgresql/data
+    networks: 
+      - SA_Tarea3
+
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: server_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    networks:
+      - SA_Tarea3
+    depends_on:
+      - db
+    environment:
+      DB_NAME: SA_Tarea3
+      DB_USER: root
+      DB_PASSWORD: secret123*
+      DB_HOST: db
+      DB_PORT: 5432
+      PORT: 8000
+      # NODE_ENV: production # Usar si se levantara en produccion
+
+
+networks:
+  SA_Tarea3:
+    driver: bridge
+
+volumes:
+  db-data:
