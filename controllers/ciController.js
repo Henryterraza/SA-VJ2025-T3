@@ -24,10 +24,16 @@ exports.updateCI = async (req, res) => {
 };
 
 exports.deleteCI = async (req, res) => {
-  const deleted = await ciService.deleteCI(req.params.id, req.headers['x-user'] || 'admin');
-  if (!deleted) return res.status(404).json({ error: 'CI not found' });
-  res.json({ message: 'CI deleted' });
+  try {
+    const deleted = await ciService.deleteCI(req.params.id, req.headers['x-user'] || 'admin');
+    if (!deleted) return res.status(404).json({ error: 'CI not found' });
+    res.json({ message: 'CI deleted' });
+  } catch (error) {
+    console.error('Error al eliminar CI:', error);
+    res.status(500).json({ error: 'Error interno al eliminar CI' });
+  }
 };
+
 
 exports.addChildRelation = async (req, res) => {
   const { child_ci_id } = req.body;

@@ -32,10 +32,17 @@ exports.updateCI = async (id, data, user) => {
 exports.deleteCI = async (id, user) => {
   const ci = await ConfigurationItem.findByPk(id);
   if (!ci) return false;
+  await CIAuditLog.create({
+    ci_id: id,
+    action: 'DELETE',
+    performed_by: user,
+    change_summary: 'CI eliminado'
+  });
   await ci.destroy();
-  await CIAuditLog.create({ ci_id: id, action: 'DELETE', performed_by: user, change_summary: 'CI eliminado' });
+
   return true;
 };
+
 
 exports.addRelation = (parentId, childId) => CIRelationship.create({ parent_ci_id: parentId, child_ci_id: childId });
 exports.getChildren = (id) => CIRelationship.findAll({ where: { parent_ci_id: id } });

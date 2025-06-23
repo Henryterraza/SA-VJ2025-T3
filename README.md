@@ -1,5 +1,10 @@
 # Instrucciones para usar aplicaion
 
+## Base de datos
+Las tablas de la base de datos se crean cuanod se levanta la aplicacion y haya comunicacion con la base de datos
+
+![ER](img/SA_Tarea3%20-%20public.png)
+
 ## Comandos a ejecutar 
 
 ### con docker compose
@@ -77,3 +82,10 @@ Usar swagger editor online para ver la estructura de los endpoints y su manejo e
 }  
 ``` 
 
+
+## Para realizar las pruebas unitarias
+```bash
+npm test
+```
+
+![PruebasUnitarias](img/PruebasUnitarias.png)
