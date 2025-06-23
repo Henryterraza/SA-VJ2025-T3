@@ -84,6 +84,12 @@ Usar swagger editor online para ver la estructura de los endpoints y su manejo e
 
 
 ## Para realizar las pruebas unitarias
+- se necesita que la base de datos este levantada
+- ejecutar archivo speed.js
+```bash
+node speed.js
+```
+- ejecuatar pruebas
 ```bash
 npm test
 ```
